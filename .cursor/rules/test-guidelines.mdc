@@ -1,0 +1,128 @@
+---
+description: test 测试用例编写和处理时使用此规则
+globs: 
+alwaysApply: false
+---
+# 测试用例编写与处理规范
+
+## 测试用例判定标准
+- 理解当前测试用例失败原因
+- 根据实际需求场景判断真实情况应该是怎样的
+- 检查代码和测试用例，判定是哪部分问题
+- 说明原因，给用户提供足够的参考信息
+- 最后执行修改
+
+## 测试用例语言规范
+- 所有测试用例描述、断言信息优先使用**中文**表达
+- 测试用例命名应当简洁明了，使用中文命名（如：`测试待办事项添加功能`）
+- 变量命名仍遵循代码规范（camelCase），但注释需使用中文
+
+## 测试用例结构与注释
+- 每个测试套件（describe）需包含简要说明，描述测试范围
+- 每个测试用例（test/it）需要清晰描述预期行为
+- 代码中需添加适当注释，说明以下内容：
+  - 测试用例的意图和目的
+  - 特殊情况或边界条件的处理
+  - 复杂测试步骤的解释
+  - 可能存在的副作用或注意事项
+
+## 测试工具与框架
+- 使用 [Vitest](mdc:package.json) 作为测试运行器
+- 使用 [@testing-library/react](mdc:package.json) 进行组件测试
+- src 目录使用路径别名 `@` 导入文件
+- tests 目录使用路径别名 `@tests` 导入文件
+- 测试文件统一放置在根目录下的 `tests` 目录下
+- 测试用例目录结构与 src 目录文件保持一致
+- 测试文件命名格式：`[被测试组件/模块名].test.tsx`
+- 如果单个测试用例行数较少，可以用一个文件替代整个目录，简化文件数量
+
+## 测试用例类型
+- **单元测试**：测试独立函数和组件
+- **集成测试**：测试多个组件或功能的交互
+- **快照测试**：验证UI组件渲染结果一致性
+- **钩子测试**：验证自定义Hook行为
+
+## 错误处理与问题排查流程
+测试用例失败时，按以下步骤进行排查：
+
+1. **理解测试失败原因**：
+   - 仔细阅读错误信息和堆栈跟踪
+   - 确认是断言失败还是运行时错误
+
+2. **源码分析**：
+   - 查看被测试代码的实现逻辑
+   - 理解组件或函数的预期行为
+   - 分析依赖关系和边界条件
+
+3. **需求对照**：
+   - 回顾相关需求文档或用户故事
+   - 确认测试用例是否与需求一致
+
+4. **问题分类**：
+   - **测试用例错误**：测试逻辑或断言有误
+   - **源码缺陷**：实现不符合预期行为
+   - **需求理解偏差**：测试与实现基于不同理解
+   - **环境问题**：测试运行环境配置问题
+
+5. **解决方案**：
+   - 修复测试用例：调整断言或测试步骤
+   - 修复源码：确保实现符合需求
+   - 澄清需求：与相关方确认预期行为
+   - 调整测试环境：解决配置或依赖问题
+
+## 测试用例编写示例
+
+```typescript
+/**
+ * @fileoverview 单元测试 - src/core/todo.ts
+ * 待办事项列表组件测试
+ */
+import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
+import TodoList from '@/components/TodoList';
+
+describe('待办事项列表组件', () => {
+  it('应正确渲染待办事项列表', () => {
+    // 准备测试数据
+    const todos = [
+      { id: '1', text: '学习React', completed: false },
+      { id: '2', text: '写测试用例', completed: true }
+    ];
+    
+    // 渲染组件
+    render(<TodoList todos={todos} />);
+    
+    // 断言：检查列表项是否都被渲染
+    expect(screen.getByText('学习React')).toBeInTheDocument();
+    expect(screen.getByText('写测试用例')).toBeInTheDocument();
+    
+    // 断言：检查完成状态是否正确显示
+    const items = screen.getAllByRole('listitem');
+    expect(items[1].classList.contains('completed')).toBeTruthy();
+  });
+
+  it('点击待办事项应切换其完成状态', () => {
+    // 准备测试数据和模拟函数
+    const todos = [{ id: '1', text: '学习测试', completed: false }];
+    const onToggle = vi.fn(); // 创建模拟函数跟踪调用
+    
+    // 渲染组件
+    render(<TodoList todos={todos} onToggle={onToggle} />);
+    
+    // 执行操作：点击待办事项
+    fireEvent.click(screen.getByText('学习测试'));
+    
+    // 断言：检查回调函数是否被正确调用
+    expect(onToggle).toHaveBeenCalledWith('1');
+  });
+});
+```
+
+## 最佳实践
+- 每次只测试一个行为或功能点
+- 使用 `beforeEach` 和 `afterEach` 设置和清理测试环境
+- 针对异步操作使用 `async/await` 进行测试
+- 使用模拟函数（Mock）隔离测试依赖
+- 优先使用用户行为导向测试（如点击、输入），而非内部实现细节
+- 测试覆盖边界条件和异常情况
+

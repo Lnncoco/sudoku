@@ -1,0 +1,122 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# React 数独项目开发与导航指南
+
+以下规则适用于本数独项目（React + Vite + TypeScript + Tailwind CSS + daisyUI）：
+
+## 项目结构
+- 根目录
+  - [package.json](mdc:package.json)：依赖和脚本管理，包含数独项目所需的所有依赖
+  - [vite.config.js](mdc:vite.config.js)：Vite 构建配置，包含路径别名(@/)设置
+  - [tailwind.config.js](mdc:tailwind.config.js)：Tailwind CSS 配置和 daisyUI 插件
+  - [tsconfig.json](mdc:tsconfig.json)：TypeScript 编译选项和路径映射
+  - [biome.json](mdc:biome.json)：Biome 代码格式化和检查配置
+  - [public](mdc:public)：静态资源目录
+  - [tests](mdc:tests)：测试文件目录，包含核心逻辑测试
+  - [README.md](mdc:README.md)：项目文档
+- [src](mdc:src)：源代码目录
+  - [main.tsx](mdc:src/main.tsx)：应用入口文件，包含路由配置
+  - [App.tsx](mdc:src/App.tsx)：主应用组件
+  - [styles.css](mdc:src/styles.css)：全局样式定义
+  - [core](mdc:src/core)：数独核心逻辑
+    - [index.ts](mdc:src/core/index.ts)：核心模块导出
+    - [engine](mdc:src/core/engine)：数独引擎实现
+    - [solvers](mdc:src/core/solvers)：解题算法
+    - [generators](mdc:src/core/generators)：谜题生成器
+    - [types](mdc:src/core/types)：类型定义
+    - [validation](mdc:src/core/validation)：规则验证
+    - [variants](mdc:src/core/variants)：数独变体
+    - [candidates](mdc:src/core/candidates)：候选数处理
+    - [regions](mdc:src/core/regions)：区域处理
+    - [grid](mdc:src/core/grid)：网格操作
+  - [pages](mdc:src/pages)：页面组件
+  - [utils](mdc:src/utils)：工具函数
+
+## 命名规范
+- 组件文件使用 PascalCase，如 `SudokuBoard.tsx`
+- Hooks 和工具函数使用 camelCase，如 `useTimer.ts`、`validateGrid.ts`
+- 类型定义使用 PascalCase，如 `SudokuGrid.ts`
+- 常量使用大写下划线，如 `GRID_SIZE`、`MAX_VALUE`
+- 测试文件使用 `.test.ts` 或 `.spec.ts` 后缀
+
+## 代码规范
+- 使用路径别名 `@/` 导入文件，如 `import { Grid } from "@/core/grid"`
+- 使用 React Hooks 和函数式组件，避免类组件
+- 使用 [classnames](mdc:package.json) 管理条件类名
+- 运用 `useMemo` 和 `useCallback` 优化渲染性能
+- 结合 [immer](mdc:package.json) 实现不可变状态更新
+- 使用 [nanoid](mdc:package.json) 生成唯一标识符
+- 使用 [dayjs](mdc:package.json) 处理日期和时间
+- 使用 [react-icons](mdc:package.json) 引入图标
+
+## 数独开发规范
+- 采用分层架构：
+  - 核心逻辑层：纯函数实现数独算法，不依赖 UI
+  - 状态管理层：使用 [zustand](mdc:package.json) 管理游戏状态
+  - UI 渲染层：React 组件展示数独界面
+- 数独变体实现：
+  - 继承基础数独验证规则
+  - 在 `src/core/variants` 中实现特有约束条件
+  - 每个变体需要独立测试验证
+- 性能优化：
+  - 复杂网格操作使用 `useMemo` 缓存
+  - 大型数独使用虚拟列表优化渲染
+  - 耗时计算考虑 Web Worker 处理
+- 图形绘制使用 [react-konva](mdc:package.json)
+- 动画效果使用 [motion](mdc:package.json)
+
+## 样式与布局
+- 优先使用 Tailwind CSS 原子类样式
+- 组件样式使用 Tailwind 类组合
+- 结合 [daisyUI](mdc:package.json) 组件库扩展 UI
+- 响应式设计支持：
+  - 移动端优先设计
+  - 使用 Tailwind 断点适配不同屏幕
+  - 触摸和鼠标操作兼容
+
+## 状态管理
+- 使用 [zustand](mdc:package.json) 管理全局状态
+- 状态按功能划分为多个 store 或 slice：
+  - 游戏状态 store：难度、计时、得分等
+  - 数独网格 store：单元格值、候选数等
+  - 用户设置 store：主题、音效、辅助功能等
+- 状态选择器封装为自定义 Hooks
+- 复杂派生状态使用 zustand 的 middleware
+
+## 测试
+- 单元测试：使用 Vitest 测试核心逻辑
+- 组件测试：使用 `@testing-library/react`
+- 测试覆盖要求：
+  - 核心算法 > 80% 测试覆盖率
+  - 数独生成器完整测试
+  - 规则验证全面测试
+
+## 脚本与工具
+- 开发：`pnpm dev` 或 `pnpm start`
+- 构建：`pnpm build`
+- 预览：`pnpm serve`
+- 测试：`pnpm test`
+- 格式化：`pnpm format`
+- 检查：`pnpm lint` 和 `pnpm check`
+
+## 代码质量与可维护性
+- 文件过长时（>350行）进行拆分
+- 复杂算法添加详细注释
+- 函数参数和返回值明确类型定义
+- 性能关键路径标注和优化
+- 定期重构复杂模块，保持代码可维护性
+
+## 提交规范
+- Commit message 遵循 Conventional Commits
+- 格式：`<type>(<scope>): <message>`
+  - feat: 新功能
+  - fix: 修复 bug
+  - refactor: 重构
+  - style: 样式调整
+  - test: 测试相关
+  - docs: 文档更新
+- 每个功能开发通过单独分支
+
